@@ -17,5 +17,9 @@ redis> RPUSH fruits "apple" "banana"
 
 ### 2.1 SDS的定义
 
+1. free
+2. len
+3. buf
+
 
 
