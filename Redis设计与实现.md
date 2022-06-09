@@ -17,7 +17,7 @@ redis> RPUSH fruits "apple" "banana"
 
 ### 2.1 SDS的定义
 
-
+![image-20220609212345447](https://github.com/sandubuhan/Redis_design_implementation/blob/main/img//img/202206092124924.png)
 
 + free：表示这个SDS未分配的空间
 + len：表示保存的空间
