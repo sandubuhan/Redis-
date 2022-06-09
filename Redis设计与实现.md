@@ -23,3 +23,4 @@ redis> RPUSH fruits "apple" "banana"
 
 
 
+![image-20220609205401388](https://raw.githubusercontent.com/sandubuhan/Redis_design_implementation/master/img/202206092054719.png)
