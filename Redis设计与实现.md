@@ -64,3 +64,11 @@ redis> RPUSH fruits "apple" "banana"
 ### 总结
 
 ![image-20220609224431381](https://github.com/sandubuhan/Redis_design_implementation/blob/main/img/202206092245372.png)
+
+
+
+
+
+## 第三章 链表
+
++ Redis构建了自己的链表数据结构
