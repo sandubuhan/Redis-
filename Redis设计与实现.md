@@ -17,10 +17,8 @@ redis> RPUSH fruits "apple" "banana"
 
 ### 2.1 SDS的定义
 
-1. free
-2. len
-3. buf
 
 
-
-![image-20220609205401388](https://raw.githubusercontent.com/sandubuhan/Redis_design_implementation/master/img/202206092054719.png)
++ free：表示这个SDS未分配的空间
++ len：表示保存的空间
++ buf：是一个char类型的数组
