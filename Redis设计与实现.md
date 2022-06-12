@@ -1,6 +1,6 @@
 # Redis设计与实现
 
-## 第二章 简单动态字符串
+## 第二章 简单动态字符串（String）
 
 + Redis构建了一种名为简单动态字符串（SDS）的抽象类型，并将SDS用作Redis的默认字符串表示
 + 当Redis需要的不仅是一个字符串字面量，而是一个可以被修改的字符串值时，就会使用SDS来表示字符串值。
@@ -17,7 +17,7 @@ redis> RPUSH fruits "apple" "banana"
 
 ### 2.1 SDS的定义
 
-
+![202206121718031](https://raw.githubusercontent.com/sandubuhan/PicGo/main/img/202206121732535.png?token=ANCBAXX3ZSBWBR6GCUP4D73CUWZOC)
 
 + free：表示这个SDS未分配的空间
 + len：表示保存的空间
@@ -63,7 +63,34 @@ redis> RPUSH fruits "apple" "banana"
 
 ### 总结
 
+![202206121720312](https://raw.githubusercontent.com/sandubuhan/PicGo/main/img/202206121732744.png?token=ANCBAXTXJOQWEKDUOLRL7ALCUWZOQ)
 
+## 第三章 链表（list）
 
-## 第三章 链表
++ Redis使用的C语言并没有内置这种数据结构，所以Redis构建了自己的链表实现
++ 列表建的底层实现之一就是链表。当一个列表建包含了数量比较多的元素，又或者列表中包含的元素都是比较长的字符串时，Redis就会使用链表作为列表键的底层实现
++ 除了链表键之外，发布订阅、慢查询、监视器等功能也用到了链表，Redis服务器本身还是用链表来保存多个客户端的状态信息，以及使用链表来构建客户端输出缓冲区
 
+### 链表和链表节点的实现
+
++ 链表节点：
+
+![image-20220612203609649](https://raw.githubusercontent.com/sandubuhan/PicGo/main/img/202206122036738.png?token=ANCBAXRRC5GSEEG3FEBEBT3CUXO7M)
+
++ 多个listNode通过prev和next指针组成双端链表
+
++ 链表：
+
+![image-20220612203626152](https://raw.githubusercontent.com/sandubuhan/PicGo/main/img/202206122036222.png?token=ANCBAXU27KLJAWVNPHJXVRDCUXPAO)
+
++ 通过list来操作链表
+    + 表头指针：head，表尾指针：tail，链表长度计数器：len
+    + dup：用于复制链表节点所保存的值
+    + free：释放链表节点所保存的值
+    + match：对比链表节点所保存的值和另一个输入值是否相等
++ Redis的链表实现的特性：
+    + 双端：链表节点带有prev和next指针，获取某个节点的前置节点和后置借点的复杂度都是O(1)
+    + 无环：表头节点的prev指针和表尾节点的next指针都指向null，对链表的访问以Null为终点
+    + 带表头指针和表尾指针：通过list结构的head和tail，程序获取表头表尾的复杂度为O(1)
+    + 带链表长度计数器：程序使用list结构的len属性来对list持有的链表节点进行计数，获取链表节点数量的复杂度为O(1)
+    + 多态：链表节点使用void*指针来保存节点值，并且可以通过list结构的dup、free、match三个属性为节点值设置类型特定函数，所以链表可以用于保存不同类型的值
