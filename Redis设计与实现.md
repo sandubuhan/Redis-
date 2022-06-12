@@ -63,8 +63,6 @@ redis> RPUSH fruits "apple" "banana"
 
 ### 总结
 
-![202206092245372](E:/Typora-book/%E9%98%85%E8%AF%BB/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0/Redis_design_implementation/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0.assets/202206092245372-16550195793421.png)
-
 
 
 ## 第三章 链表
