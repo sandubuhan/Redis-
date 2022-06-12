@@ -17,7 +17,7 @@ redis> RPUSH fruits "apple" "banana"
 
 ### 2.1 SDS的定义
 
-![image-20220609213439939](https://github.com/sandubuhan/Redis_design_implementation/blob/main/img/202206092134992.png)
+![202206092134992](E:/Typora-book/%E9%98%85%E8%AF%BB/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0/Redis_design_implementation/img/202206092134992.png)
 
 + free：表示这个SDS未分配的空间
 + len：表示保存的空间
@@ -63,12 +63,12 @@ redis> RPUSH fruits "apple" "banana"
 
 ### 总结
 
-![image-20220609224431381](https://github.com/sandubuhan/Redis_design_implementation/blob/main/img/202206092245372.png)
-
-
+![202206092245372](E:/Typora-book/%E9%98%85%E8%AF%BB/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0/Redis_design_implementation/Redis%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0.assets/202206092245372-16550195793421.png)
 
 
 
 ## 第三章 链表
 
 + Redis构建了自己的链表数据结构
+
+![image-20220612154058027](https://github.com/sandubuhan/Redis_design_implementation/blob/main/img/202206121541374.png)
