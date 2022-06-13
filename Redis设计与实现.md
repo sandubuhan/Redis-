@@ -65,6 +65,8 @@ redis> RPUSH fruits "apple" "banana"
 
 ![202206121720312](https://raw.githubusercontent.com/sandubuhan/PicGo/main/img/202206121732744.png?token=ANCBAXTXJOQWEKDUOLRL7ALCUWZOQ)
 
+
+
 ## 第三章 链表（list）
 
 + Redis使用的C语言并没有内置这种数据结构，所以Redis构建了自己的链表实现
@@ -94,3 +96,8 @@ redis> RPUSH fruits "apple" "banana"
     + 带表头指针和表尾指针：通过list结构的head和tail，程序获取表头表尾的复杂度为O(1)
     + 带链表长度计数器：程序使用list结构的len属性来对list持有的链表节点进行计数，获取链表节点数量的复杂度为O(1)
     + 多态：链表节点使用void*指针来保存节点值，并且可以通过list结构的dup、free、match三个属性为节点值设置类型特定函数，所以链表可以用于保存不同类型的值
+
+
+
+## 第四章 字典（Hash）
+
