@@ -63,7 +63,7 @@ redis> RPUSH fruits "apple" "banana"
 
 ### 总结
 
-![202206121720312](https://raw.githubusercontent.com/sandubuhan/PicGo/main/img/202206121732744.png?token=ANCBAXTXJOQWEKDUOLRL7ALCUWZOQ)
+![image-20220613231035977](https://raw.githubusercontent.com/sandubuhan/PicGo/main/img/202206132311191.png?token=ANCBAXVNBYXBKQQE7FGXT6DCU5J4K)
 
 
 
@@ -77,13 +77,13 @@ redis> RPUSH fruits "apple" "banana"
 
 + 链表节点：
 
-![image-20220612203609649](https://raw.githubusercontent.com/sandubuhan/PicGo/main/img/202206122036738.png?token=ANCBAXRRC5GSEEG3FEBEBT3CUXO7M)
+![](https://raw.githubusercontent.com/sandubuhan/PicGo/main/img/202206132311239.png?token=ANCBAXS7XU4NP2IMM3YG3SLCU5J5W)
 
 + 多个listNode通过prev和next指针组成双端链表
 
 + 链表：
 
-![image-20220612203626152](https://raw.githubusercontent.com/sandubuhan/PicGo/main/img/202206122036222.png?token=ANCBAXU27KLJAWVNPHJXVRDCUXPAO)
+![image-20220613231249743](https://raw.githubusercontent.com/sandubuhan/PicGo/main/img/202206132316258.png?token=ANCBAXTYKUG5CI2DUXDLNTDCU5KRE)
 
 + 通过list来操作链表
     + 表头指针：head，表尾指针：tail，链表长度计数器：len
