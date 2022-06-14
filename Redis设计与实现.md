@@ -17,7 +17,7 @@ redis> RPUSH fruits "apple" "banana"
 
 ### 2.1 SDS的定义
 
-![image-20220613230720771](https://raw.githubusercontent.com/sandubuhan/PicGo/main/img/202206132307425.png?token=ANCBAXT7AUCBACUOMDEG5I3CU5JO6)
+![image-20220614213514317](https://picgo-machuan.oss-cn-hangzhou.aliyuncs.com/reids/202206142135641.png)
 
 + free：表示这个SDS未分配的空间
 + len：表示保存的空间
@@ -63,7 +63,7 @@ redis> RPUSH fruits "apple" "banana"
 
 ### 总结
 
-![image-20220613231035977](https://raw.githubusercontent.com/sandubuhan/PicGo/main/img/202206132311191.png?token=ANCBAXVNBYXBKQQE7FGXT6DCU5J4K)
+![image-20220614213536195](https://picgo-machuan.oss-cn-hangzhou.aliyuncs.com/reids/202206142135655.png)
 
 
 
@@ -77,13 +77,13 @@ redis> RPUSH fruits "apple" "banana"
 
 + 链表节点：
 
-![](https://raw.githubusercontent.com/sandubuhan/PicGo/main/img/202206132311239.png?token=ANCBAXS7XU4NP2IMM3YG3SLCU5J5W)
+![image-20220614001458113](https://picgo-machuan.oss-cn-hangzhou.aliyuncs.com/reids/202206140014396.png)
 
 + 多个listNode通过prev和next指针组成双端链表
 
 + 链表：
 
-![image-20220613231249743](https://raw.githubusercontent.com/sandubuhan/PicGo/main/img/202206132316258.png?token=ANCBAXTYKUG5CI2DUXDLNTDCU5KRE)
+![image-20220614213602068](https://picgo-machuan.oss-cn-hangzhou.aliyuncs.com/reids/202206142136934.png)
 
 + 通过list来操作链表
     + 表头指针：head，表尾指针：tail，链表长度计数器：len
@@ -100,4 +100,107 @@ redis> RPUSH fruits "apple" "banana"
 
 
 ## 第四章 字典（Hash）
+
++ 又称为符号表、关联数组、映射，是一种用于保存键值对的抽象数据结构
++ 字典中的每个键都是独一无二（key不能重复，value可以重复）
++ C语言没有内置字典，所以Redis构建了自己的字典实现
++ Redis的数据库就是使用字典作为底层实现，对数据库的增删改查操作也是构建在字典的操作之上的
+
+~~~shell
+redis> set msg "hello"
+ok
+~~~
+
++ 上述命令，，这个键值对就是保存在代表数据库的字典里面的
++ 字典还是哈希键的底层实现之一，当一个哈希键包含的键值对比较多，又或者键值对中的元素都是比较长的字符串时，Redis就会使用字典作为哈希键的底层实现
+
+### 字典的实现
+
++ Redis的字典使用哈希表作为底层实现，一个哈希表里面可以由多个哈希表节点，每个哈希表节点就保存了字典中的一个键值对
+
+#### 哈希表
+
+![image-20220614214308013](https://picgo-machuan.oss-cn-hangzhou.aliyuncs.com/reids/202206142143064.png)
+
++ table属性是一个数组，数组中的每个元素都是一个指向dictEntry结构的指针，每个dictEntry结构保存着一个键值对
++ size属性记录哈希表大小，也就是table数组的大小
++ sizemask的值总是等于size-1，它和哈希值一起决定一个键被放到table数组的哪个索引上面
+
+#### 哈希表节点
+
++ 哈希表节点使用dictEntry结构表示
+
+![image-20220614214622717](https://picgo-machuan.oss-cn-hangzhou.aliyuncs.com/reids/202206142146794.png)
+
++ next属性是指向另一个哈希表节点的指针，这个指针可以将多个哈希值相同的键值对连接在一起，解决键冲突（头插法）
+
+![image-20220614214731826](https://picgo-machuan.oss-cn-hangzhou.aliyuncs.com/reids/202206142147917.png)
+
+####　字典
+
+![image-20220614214801350](https://picgo-machuan.oss-cn-hangzhou.aliyuncs.com/reids/202206142148449.png)
+
++ type属性是一个指向dictType结构的指针，每个dictType结构保存了一簇用于操作特定类型键值对的函数，Redis会为用途不同的字典设置不同的类型特定函数
+
+![image-20220614214918544](https://picgo-machuan.oss-cn-hangzhou.aliyuncs.com/reids/202206142149644.png)
+
++ ht属性是一个包含两个项的数组，数组中的每个项都是一个dictht哈希表，一般情况下，字典只是用ht[0]哈希表，ht[1]只会在对ht[0]进行rehash时使用
++ rehashid用于记录目前rehash的进度，如果没有rehash，被标记为-1
+
+![image-20220614215101075](https://picgo-machuan.oss-cn-hangzhou.aliyuncs.com/reids/202206142151177.png)
+
+### 哈希算法
+
++ 当要将一个新的键值对添加到字典里面，程序需要先根据键值对的键计算出哈希值和索引值，再根据所印制，将包含新键值对的哈希表节点放到哈希表数组的指定索引上面
+
+~~~shell
+hash = dict->type->hashFunction(key);
+index = hash & dict->ht[x].sizemask;
+~~~
+
++ Redis使用MurmurHash2算法计算键的哈希值
+
+### 解决键冲突
+
++ 当有两个或以上的键被分配到了哈希表数组的同一个索引上面时，就称为冲突
++ Redis的哈希表使用链地址法解决冲突，每个哈希表节点都有一个next指针，多个哈希表节点可以用next指针构成一个车单向链表，被分配到同一个索引上的多个节点可以被连接起来
+
+### rehash
+
++ 哈希表保存的键值对会随着操作的执行而增多或减少，为了让哈希表的负载因子（[0.75](https://stackoverflow.com/questions/7115445/what-is-the-optimal-capacity-and-load-factor-for-a-fixed-size-hashmap)）维持在一个合理的范围内，当哈希表保存的键值对数量过多或过少，程序会对哈希表的大小进行扩展或者收缩
+
++ 步骤：
+    + 为字典的ht[1]哈希表分配空间
+        + 扩展：ht[1]的大小为第一个大于等于ht[0].used*2的"2的n次方幂"
+        + 收缩：ht[1]大小为第一个车大于等于ht[0].used的"2的n次方幂"
+    + 将保存在ht[0]中的所有键值对rehash到ht[1]上，rehash指重新计算键的哈希值和索引值
+    + 当所有的键值对都迁移后，释放ht[0],将ht[1]设置为ht[0]，并在ht[1]新创建一个空白哈希表
+
+### 哈希表的扩展收缩
+
++ 程序会自动对哈希表扩展：
+    + 服务器目前没有在执行BGSAVE命令或者BGREWRITEAOF命令时，并且哈希表的负载因子大于等于1
+    + 正在执行BGSAVE命令或者BGREWRITEAOF命令，并且哈希表的负载因子大于等于5
++ 公式
+
+~~~shell
+# 负载因子 = 哈希表已保存节点数量 / 哈希表大小
+load_factor = ht[0].used / ht[0].size
+# 已保存节点数量≠桶的数量（数组的大小）
+~~~
+
++ 在执行BGSAVE或者BGREWRITEAOF命令时，Redis需要创建当前服务器进程的子进程，而大多数操作系统都采用写时复制来优化紫禁城的使用效率，所以在子进程存在期间，服务器会提高执行扩展操作所需的负载因子。从而尽可能避免在子进程存在期间进行哈希表扩展操作，可以避免不必要的内存写入操作，最大限度的节约内存
++ 另一方面，当哈希表的负载因子小于0.1时，程序自动开始对哈希表收缩
+
+### 渐进式rehash
+
++ rehash的动作并不是一次性，而是分多次、渐进式的完成。因为避免庞大的键值对在计算时会对服务器造成影响
++ 在字典中维持索引计数器变量rehashidx，并设置为0，表示rehash工作开始
++ 在rehash期间，每次对字典执行增删改查，程序除了执行指定的操作以外，还会将ht[0]哈希表在rehashidx索引上的所有键值对rehash到ht[1]。当rehash 完成后，rehashidx+1
++ 都完成后，rehashidx == -1
++ 渐进式执行期间，新添加到字典的键值对会保存到ht[1]
+
+
+
+## 跳跃表
 
