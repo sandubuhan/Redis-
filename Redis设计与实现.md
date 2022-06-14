@@ -101,6 +101,35 @@ redis> RPUSH fruits "apple" "banana"
 
 ## 第四章 字典（Hash）
 
+~~~shell
+127.0.0.1:6379> hset user name1 hao
+(integer) 1
+127.0.0.1:6379> hset user email1 hao@163.com
+(integer) 1
+127.0.0.1:6379> hgetall user
+1) "name1"
+2) "hao"
+3) "email1"
+4) "hao@163.com"
+127.0.0.1:6379> hget user user
+(nil)
+127.0.0.1:6379> hget user name1
+"hao"
+127.0.0.1:6379> hset user name2 xiaohao
+(integer) 1
+127.0.0.1:6379> hset user email2 xiaohao@163.com
+(integer) 1
+127.0.0.1:6379> hgetall user
+1) "name1"
+2) "hao"
+3) "email1"
+4) "hao@163.com"
+5) "name2"
+6) "xiaohao"
+7) "email2"
+8) "xiaohao@163.com"
+~~~
+
 + 又称为符号表、关联数组、映射，是一种用于保存键值对的抽象数据结构
 + 字典中的每个键都是独一无二（key不能重复，value可以重复）
 + C语言没有内置字典，所以Redis构建了自己的字典实现
@@ -202,5 +231,27 @@ load_factor = ht[0].used / ht[0].size
 
 
 
-## 跳跃表
+## 跳跃表 （Zset）
 
+~~~shell
+127.0.0.1:6379> zadd myscoreset 100 hao 90 xiaohao
+(integer) 2
+127.0.0.1:6379> ZRANGE myscoreset 0 -1
+1) "xiaohao"
+2) "hao"
+127.0.0.1:6379> ZSCORE myscoreset hao
+"100"
+~~~
+
++ 跳跃表是一种有序数据结构，支持平均O(logN)，最坏O(N)复杂度的节点查找
++ Redis使用跳跃表作为有序集合键的底层实现之一，如果一个有序集合包含的元素数量比较多，又或者有序集合中元素的成员是比较长的字符串时，Redis就会使用跳跃表作为有序集合键的底层实现
++ Redis只在两个地方用到了跳跃表，一个是实现有序集合键，一个是集群节点中用作内部数据结构
+
+### 跳跃表的实现
+
++ 由zskiplistNode和zskiplist两个结构定义。前者表示跳跃表节点，后者用于保存跳跃表节点的相关信息，比如数量，以及指向表头和表尾节点的指针
+
+![image-20220614234821152](https://picgo-machuan.oss-cn-hangzhou.aliyuncs.com/reids/202206142348270.png)
+
++ zskiplist:
+    + 
