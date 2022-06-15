@@ -15,7 +15,7 @@ redis> RPUSH fruits "apple" "banana"
     + 值是一个列表对象，包含了两个字符串对象。这两个对象分别由两个SDS实现。
 + 除此外，SDS还被用作缓冲区：AOF模块中的AOF缓冲区，以及客户端状态中的输入缓冲区
 
-### 2.1 SDS的定义
+###  SDS的定义
 
 ![image-20220614213514317](https://picgo-machuan.oss-cn-hangzhou.aliyuncs.com/reids/202206142135641.png)
 
@@ -24,7 +24,7 @@ redis> RPUSH fruits "apple" "banana"
 + buf：是一个char类型的数组，最后一个字节保存了空字符“\0"
 + 保存空字符的1字节空间不计算在SDS的len属性里，并且为空字符分配额外的1字节空间
 
-## 2.2 SDS与字符串的区别
+### SDS与字符串的区别
 
 + C语言顺颂的字符串表达方式，并不能满足Redis对字符串在安全性、效率以及功能方面的要求
 
@@ -304,4 +304,13 @@ load_factor = ht[0].used / ht[0].size
 
 
 ## 第六章 整数集合 （Set）
+
++ 整数集合是集合键的底层实现之一，当一个集合只包含整数值元素，并且这个集合的元素数量不多时，Redis就会使用整数集合作为集合键的底层实现
+
+~~~shell
+redis> SADD numbers  1 3 5 7 9 
+(integer) 5
+redis> OBJECT ENCODING  numbers
+"intset"
+~~~
 
