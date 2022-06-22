@@ -612,8 +612,5 @@ list
 + OBJECT IDLETIME命令可以打印出给定键的空转时长，通过当前时间减去lru计算得出
 + 如果服务器打开了maxmemory选项，并且服务器用于回收内存的算法为volatile-lru或者allkeys-lru，那么当服务器占用的内存数超过了maxmemory选项所设置的上线值，空转时长较高的部分键会被优先释放，回收内存
 
+## 数据库
 
-
-
-
-​	
