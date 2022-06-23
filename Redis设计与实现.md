@@ -614,3 +614,4 @@ list
 
 ## 数据库
 
++ Redis服务器将所有的数据库都保存在服务器的db数组中，db数组的每个项都是一个redis.h/redisDb结构，每个redisDb
