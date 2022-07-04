@@ -722,3 +722,61 @@ list
 #### 数据库通知
 
 + 让客户端通过订阅给定的频道或者模式，来获知数据库中键的变化、命令的执行情况
+
+<img src="https://picgo-machuan.oss-cn-hangzhou.aliyuncs.com/reids/202207042240472.png" alt="image-20220704224014299" style="zoom:50%;" />
+
++ 这一类关注“某个键执行了什么命令”的通知称为键空间通知
++ 还有一类称为键事件通知，关注的是“某个命令被什么键执行了”
+
+![image-20220704224127499](https://picgo-machuan.oss-cn-hangzhou.aliyuncs.com/reids/202207042241595.png)
+
+
+
+## RDB持久化
+
++ RDB功能可以将Redis在内存中的数据库状态保存到磁盘里，避免数据意外丢失
++ RDB持久化功能所生成的RDB文件是一个经过压缩的二进制文件，通过改文件可以还原生成RDB文件时的数据库状态
+
+![image-20220704224623044](https://picgo-machuan.oss-cn-hangzhou.aliyuncs.com/reids/202207042246135.png)
+
+### RDB文件的创建与载入
+
++ SAVE和BGSAVE命令可以用于生成RDB文件
++ SAVE命令会阻塞Redis服务进程，直到RDB文件创建完毕之前，服务器不能处理任何命令请求
++ BGSAVE命令会派生出一个子进程，然后子进程来负责创建RDB文件，服务器（父进程）继续处理命令请求
++ RDB文件的载入是在服务器启动时自动执行的，只要检测到RDB文件，就会自动载入
+
+![image-20220704224951802](https://picgo-machuan.oss-cn-hangzhou.aliyuncs.com/reids/202207042249884.png)
+
++ 如果服务器开启了AOF持久化，服务器会优先使用AOF文件来还原数据库状态
++ BGSAVE命令执行期间，Redis仍可以继续处理客户端的命令请求，但是SAVE命令会被拒绝，避免父进程和子进程同时执行两个RDBSave调用；客户端发送的BGREWRITEWAOF命令会被延迟到BGSAVE命令执行完毕之后执行
++ 在载入RDB文件期间，会一直处于阻塞状态
+
+### 自动间隔性保存
+
++ 用户可以通过SAVE选项设置多个保存条件，只要其中一个被满足，就会执行BGSAVE命令
+
+![image-20220704225227645](https://picgo-machuan.oss-cn-hangzhou.aliyuncs.com/reids/202207042252716.png)
+
++ 服务器程序会根据save选项所设置的保存条件，设置服务器状态RedisServer结构的saveparams属性
+
+<img src="https://picgo-machuan.oss-cn-hangzhou.aliyuncs.com/reids/202207042253977.png" alt="image-20220704225324898" style="zoom:67%;" />
+
+<img src="https://picgo-machuan.oss-cn-hangzhou.aliyuncs.com/reids/202207042253902.png" alt="image-20220704225336823" style="zoom: 67%;" />
+
++ Redis的服务器周期性操作函数serverCrom默认每隔100ms就会执行一次，该函数用于对正在运行的服务器进行维护，其中一项工作就是检查save选项所设置的保存条件是否已经满足
+
+### dirty计数器和lastsave属性
+
++ dirty计数器记录距离上一次成功执行save命令或者BGSAVE命令之后，服务器对数据库状态（所有数据库）进行了多少次修改
++ lastsave属性是一个unix时间戳，记录了服务器上一次成功执行save命令或者BGSAVE命令的时间
+
+<img src="https://picgo-machuan.oss-cn-hangzhou.aliyuncs.com/reids/202207042254614.png" alt="image-20220704225458537" style="zoom:67%;" />
+
+### RDB文件结构
+
+![image-20220704225744928](https://picgo-machuan.oss-cn-hangzhou.aliyuncs.com/reids/202207042257008.png)
+
++ 开头是REDIS部分，长度5个字节，保存“REDIS”五个字符，程序可以在载入文件时，通过这五个字符，检查所载入的文件是否是RDB文件
++ 
+
