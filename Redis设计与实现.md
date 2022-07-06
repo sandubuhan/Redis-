@@ -778,5 +778,72 @@ list
 ![image-20220704225744928](https://picgo-machuan.oss-cn-hangzhou.aliyuncs.com/reids/202207042257008.png)
 
 + 开头是REDIS部分，长度5个字节，保存“REDIS”五个字符，程序可以在载入文件时，通过这五个字符，检查所载入的文件是否是RDB文件
-+ 
++ db_version长度为4个字节，是一个字符串表示的整数，记录了RDB文件的版本。
++ databases包含着零个或多个数据库，以及各个数据库中的键值对数据
++ EOF常量的长度为1个字节，标志着RDB文件正文内容的结束
++ check_sum是一个8字节长的无符号整数，保存着一个校验和
 
+![image-20220705232042035](https://picgo-machuan.oss-cn-hangzhou.aliyuncs.com/reids/202207052320161.png)
+
+#### databases
+
+![image-20220705232114085](https://picgo-machuan.oss-cn-hangzhou.aliyuncs.com/reids/202207052321157.png)
+
++ 每个非空数据库在RDB文件中都可以保存为SELECTDB、db_number、key_value_pairs三个部分
+
+![image-20220705232215226](https://picgo-machuan.oss-cn-hangzhou.aliyuncs.com/reids/202207052322316.png)
+
++ selectdb，当程序读到这个值的时候，知道接下来要读入的是一个数据库号码
++ db_number保存着数据库号码
++ key_value_pairs部分保存了数据库中的所有键值对数据
+
+![image-20220705232333772](https://picgo-machuan.oss-cn-hangzhou.aliyuncs.com/reids/202207052323855.png)
+
+#### key_value_pairs
+
++ RDB文件中的每个key_value_pairs部分都保存了一个或以上数量的键值对，如果键值对带有过期时间的话，那么键值对的过期时间也会被保存在内
+
+![image-20220705232535230](https://picgo-machuan.oss-cn-hangzhou.aliyuncs.com/reids/202207052325303.png)
+
++ TYPE记录了value的类型，程序会根据TYPE的值来决定如何读入和解释value的数据，key和value分别保存了键值对的键对象和值对象
+    + key总是一个字符串对象
+    + 根据TYPE类型的不对，以及保存内容长度的不同，保存value的结构和长度也会有所不同
+
+![image-20220705232700318](https://picgo-machuan.oss-cn-hangzhou.aliyuncs.com/reids/202207052327403.png)
+
+### value的编码
+
++ RDB文件中的每个value部分都保存了一个值对象，每个值对象的类型都由与之对应的TYPE记录，根据类型的不同，value部分的结构、长度也会有所不同
++ 字符串对象、列表对象、集合对象、哈希表对象、有序集合对象、INTSET编码的集合、ZIPLIST编码的列表、哈希表或者有序集合
+
+#### 分析RDB文件
+
++ od命令来分析Redis服务器产生的RDB文件，该命令可以用给定的格式转存（dump）并打印输入文件。比如 -c参数可以以ASCII编码的方式打印输入文件，-x参数可以以十六进制的方式打印输入文件
+
++ 不包含任何键值对的RDB文件
+
+![image-20220706233607283](https://picgo-machuan.oss-cn-hangzhou.aliyuncs.com/reids/202207062336430.png)
+
+1. 五个字节的REDIS字符串
+2. 四个字节的版本号（db_version)：0006
+3. 一个字节的EOF常量：377
+4. 八个字节的校验和：334...362 V
+
++ 包含字符串键的RDB文件
+
+![image-20220706234124338](https://picgo-machuan.oss-cn-hangzhou.aliyuncs.com/reids/202207062341426.png)
+
+1. REDIS和版本号
+2. 376代表SELECTDB常量，
+3. \0代表0号数据库
+4. RDB文件包含的内容是 \0 003... H E L L O
+
++ 包含带有过期时间的字符串键的RDB文件
+
+![image-20220706234738007](https://picgo-machuan.oss-cn-hangzhou.aliyuncs.com/reids/202207062347096.png)
+
+
+
+## AOF 持久化
+
++ RDB持久化是保存数据库中的键值对来记录数据库状态不同，AOF持久化是通过保存Redis服务器所执行写命令来记录数据库状态的
