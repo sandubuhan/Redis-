@@ -847,3 +847,7 @@ list
 ## AOF 持久化
 
 + RDB持久化是保存数据库中的键值对来记录数据库状态不同，AOF持久化是通过保存Redis服务器所执行写命令来记录数据库状态的
+
+![image-20220707212606152](https://picgo-machuan.oss-cn-hangzhou.aliyuncs.com/reids/202207072126289.png)
+
++ 
